@@ -1,5 +1,4 @@
 ﻿using AuthServiceProvider.Models;
-using Microsoft.AspNetCore.Identity.Data;
 
 namespace AuthServiceProvider.Services;
 
@@ -24,8 +23,8 @@ public class AuthService(AccountGrpcService.AccountGrpcServiceClient accountClie
         var response = await _accountClient.CreateAccountAsync(request);
 
         return response.Success
-            ? new SignUpResult 
-            { 
+            ? new SignUpResult
+            {
                 Success = response.Success,
                 Message = response.Message,
                 UserId = response.UserId
@@ -41,9 +40,9 @@ public class AuthService(AccountGrpcService.AccountGrpcServiceClient accountClie
     public async Task<SignInResult> SignInAsync(SignInFormData formData)
     {
         var request = new ValidateCredentialsRequest
-        { 
+        {
             Email = formData.Email,
-            Password = formData.Password 
+            Password = formData.Password
         };
 
         var response = await _accountClient.ValidateCredentialsAsync(request);
@@ -57,13 +56,15 @@ public class AuthService(AccountGrpcService.AccountGrpcServiceClient accountClie
             };
         }
 
-        //Generate a token for successful validation 
+
 
         return new SignInResult
         {
             Success = response.Success,
             Message = response.Message,
-            UserId = response.UserId
+            UserId = response.UserId,
+            AccessToken = null,
+            RefreshToken = null
         };
 
     }
