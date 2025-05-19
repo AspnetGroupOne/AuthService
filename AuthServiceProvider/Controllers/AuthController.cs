@@ -26,7 +26,7 @@ public class AuthController(IAuthService authService) : ControllerBase
 
 
     [HttpPost("signin")]
-    public async Task<IActionResult> SignIn(SignInFormData formData)
+    public async Task<IActionResult> SignIn([FromBody] SignInFormData formData)
     {
         if (!ModelState.IsValid)
         {
@@ -39,5 +39,3 @@ public class AuthController(IAuthService authService) : ControllerBase
             : Unauthorized(result.Message);
     }
 }
-
-//1.55.32
