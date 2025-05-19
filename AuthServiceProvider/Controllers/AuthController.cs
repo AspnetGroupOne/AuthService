@@ -30,7 +30,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return Unauthorized("Invalid login");
+            return BadRequest(ModelState);
         }
 
         var result = await _authService.SignInAsync(formData);
