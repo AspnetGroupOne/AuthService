@@ -14,7 +14,7 @@ builder.Services.AddCors(options => { options.AddPolicy("AllowAll", x => x.Allow
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddGrpcClient<AccountGrpcService.AccountGrpcServiceClient>(x =>
 {
-    x.Address = new Uri(builder.Configuration["Providers:AccountServiceProvider"]!);
+    x.Address = new Uri(builder.Configuration["AccountServiceProvider"]!);
 })
     .ConfigurePrimaryHttpMessageHandler(() =>
     {
