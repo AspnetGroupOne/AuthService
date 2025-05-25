@@ -66,7 +66,16 @@ public class AuthService: IAuthService
             var result = await http.PostAsJsonAsync("https://ventixeaccountserviceprovider-ejd0hpged4f6enb2.swedencentral-01.azurewebsites.net/accounts/Validate", request);
             var response = JsonConvert.DeserializeObject<SignInResult>(await result.Content.ReadAsStringAsync());
 
-            if (!response!.Success)
+            if (response == null)
+            {
+                return new SignInResult
+                {
+                    Success = false,
+                    Message = "Failed to deserialize response from account service."
+                };
+            }
+
+            if (!response.Success)
             {
                 return new SignInResult
                 {
