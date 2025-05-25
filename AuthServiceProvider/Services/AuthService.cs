@@ -47,43 +47,54 @@ public class AuthService: IAuthService
                 {
                     Success = false,
                     Message = ex.Message
-                }
-            ;
+                };
         }
 
     }
 
     public async Task<SignInResult> SignInAsync(SignInFormData formData)
     {
-        var request = new SignInFormData
+        try
         {
-            Email = formData.Email,
-            Password = formData.Password
-        };
+            var request = new SignInFormData
+            {
+                Email = formData.Email,
+                Password = formData.Password
+            };
 
-        using var http = new HttpClient();
-        var result = await http.PostAsJsonAsync("https://ventixeaccountserviceprovider-ejd0hpged4f6enb2.swedencentral-01.azurewebsites.net/accounts/Validate", request);
-        var response = JsonConvert.DeserializeObject<SignInResult>(await result.Content.ReadAsStringAsync());
+            using var http = new HttpClient();
+            var result = await http.PostAsJsonAsync("https://ventixeaccountserviceprovider-ejd0hpged4f6enb2.swedencentral-01.azurewebsites.net/accounts/Validate", request);
+            var response = JsonConvert.DeserializeObject<SignInResult>(await result.Content.ReadAsStringAsync());
 
-        if (!response!.Success)
-        {
+            if (!response!.Success)
+            {
+                return new SignInResult
+                {
+                    Success = response.Success,
+                    Message = response.Message,
+                };
+            }
+
+
+
             return new SignInResult
             {
                 Success = response.Success,
                 Message = response.Message,
+                UserId = formData.Email,
+                AccessToken = null,
+                RefreshToken = null
             };
         }
 
-
-
-        return new SignInResult
+        catch (Exception ex)
         {
-            Success = response.Success,
-            Message = response.Message,
-            UserId = formData.Email,
-            AccessToken = null,
-            RefreshToken = null
-        };
+            return new SignInResult
+            {
+                Success = false,
+                Message = ex.Message
+            };
+        }
 
     }
 }
