@@ -12,14 +12,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddCors(options => { options.AddPolicy("AllowAll", x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()); });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddGrpcClient<AccountGrpcService.AccountGrpcServiceClient>(x =>
-{
-    x.Address = new Uri(builder.Configuration["AccountServiceProvider"]!);
-})
-    .ConfigurePrimaryHttpMessageHandler(() =>
-    {
-        return new GrpcWebHandler(GrpcWebMode.GrpcWeb, new HttpClientHandler());
-    });
+
+var accountServiceProviderUri = builder.Configuration["AccountServiceProvider"]!; 
+//builder.Services.AddGrpcClient<AccountGrpcService.AccountGrpcServiceClient>(x =>
+//{
+//    x.Address = new Uri(accountServiceProviderUri);
+//})
+//    .ConfigurePrimaryHttpMessageHandler(() =>
+//    {
+//        return new GrpcWebHandler(GrpcWebMode.GrpcWeb, new HttpClientHandler());
+//    });
 
 
 var app = builder.Build();

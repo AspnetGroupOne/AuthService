@@ -1,4 +1,6 @@
-﻿using AuthServiceProvider.Models;
+﻿using AuthServiceProvider.DTOs;
+using AuthServiceProvider.Models;
+using Newtonsoft.Json;
 
 namespace AuthServiceProvider.Services;
 
@@ -8,46 +10,62 @@ public interface IAuthService
     Task<SignUpResult> SignUpAsync(SignUpFormData formData);
 }
 
-public class AuthService(AccountGrpcService.AccountGrpcServiceClient accountClient) : IAuthService
+public class AuthService: IAuthService
 {
-    private readonly AccountGrpcService.AccountGrpcServiceClient _accountClient = accountClient;
-
     public async Task<SignUpResult> SignUpAsync(SignUpFormData formData)
     {
-        var request = new CreateAccountRequest
+        try
         {
-            Email = formData.Email,
-            Password = formData.Password
-        };
-
-        var response = await _accountClient.CreateAccountAsync(request);
-
-        return response.Success
-            ? new SignUpResult
+            var request = new SignUpFormData
             {
-                Success = response.Success,
-                Message = response.Message,
-                UserId = response.UserId
-            }
-            : new SignUpResult
-            {
-                Success = response.Success,
-                Message = response.Message
+                Email = formData.Email,
+                Password = formData.Password
             };
+
+            using var http = new HttpClient();
+            var result = await http.PostAsJsonAsync("https://ventixeaccountserviceprovider-ejd0hpged4f6enb2.swedencentral-01.azurewebsites.net/api/Accounts/Create", request);
+            var response = JsonConvert.DeserializeObject<SignUpResult>(await result.Content.ReadAsStringAsync());
+
+            return response == null
+                ? throw new Exception("response is null")
+                : response.Success
+                ? new SignUpResult
+                {
+                    Success = response.Success,
+                    Message = response.Message,
+                    UserId = formData.Email
+                }
+                : new SignUpResult
+                {
+                    Success = response.Success,
+                    Message = response.Message
+                };
+        }
+        catch (Exception ex)
+        {
+            return new SignUpResult
+                {
+                    Success = false,
+                    Message = ex.Message
+                }
+            ;
+        }
 
     }
 
     public async Task<SignInResult> SignInAsync(SignInFormData formData)
     {
-        var request = new ValidateCredentialsRequest
+        var request = new SignInFormData
         {
             Email = formData.Email,
             Password = formData.Password
         };
 
-        var response = await _accountClient.ValidateCredentialsAsync(request);
+        using var http = new HttpClient();
+        var result = await http.PostAsJsonAsync("https://ventixeaccountserviceprovider-ejd0hpged4f6enb2.swedencentral-01.azurewebsites.net/accounts/Validate", request);
+        var response = JsonConvert.DeserializeObject<SignInResult>(await result.Content.ReadAsStringAsync());
 
-        if (!response.Success)
+        if (!response!.Success)
         {
             return new SignInResult
             {
@@ -62,7 +80,7 @@ public class AuthService(AccountGrpcService.AccountGrpcServiceClient accountClie
         {
             Success = response.Success,
             Message = response.Message,
-            UserId = response.UserId,
+            UserId = formData.Email,
             AccessToken = null,
             RefreshToken = null
         };
