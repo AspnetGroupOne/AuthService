@@ -63,7 +63,7 @@ public class AuthService: IAuthService
             };
 
             using var http = new HttpClient();
-            var result = await http.PostAsJsonAsync("https://ventixeaccountserviceprovider-ejd0hpged4f6enb2.swedencentral-01.azurewebsites.net/accounts/Validate", request);
+            var result = await http.PostAsJsonAsync("https://ventixeaccountserviceprovider-ejd0hpged4f6enb2.swedencentral-01.azurewebsites.net/api/Accounts/Validate", request);
             var response = JsonConvert.DeserializeObject<SignInResult>(await result.Content.ReadAsStringAsync());
 
             if (response == null)
