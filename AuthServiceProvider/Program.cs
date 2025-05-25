@@ -1,6 +1,5 @@
 using AuthServiceProvider;
 using AuthServiceProvider.Services;
-using Grpc.Net.Client.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
